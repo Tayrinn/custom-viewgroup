@@ -30,38 +30,27 @@ public class YaViewGroup extends LinearLayout {
 
     @Override
     protected void onLayout( boolean changed, int l, int t, int r, int b ) {
-
         int childCount = getChildCount();
         int childLeft = this.getPaddingLeft();
         final int childTop = this.getPaddingTop();
-        final int childBottom = this.getMeasuredHeight() - this.getPaddingBottom();
 
         for ( int i = 0; i < childCount; ++i ) {
 
             View child = getChildAt( i );
 
+            if ( child.getVisibility() == GONE )
+                continue;
+
             int childWidth = child.getMeasuredWidth();
+            int childBottom = child.getMeasuredHeight();
             child.layout( childLeft, childTop, childLeft + childWidth, childBottom );
             childLeft += childWidth;
         }
     }
 
     @Override
-    protected void onMeasure( int widthMeasureSpec, int heightMeasureSpec ) {
-        super.onMeasure( widthMeasureSpec, heightMeasureSpec );
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-
-        int width = 0;
-        int height = MeasureSpec.getSize( heightMeasureSpec );
-
-        if ( widthMode == MeasureSpec.EXACTLY || widthMode == MeasureSpec.AT_MOST ) {
-
-            width = MeasureSpec.getSize(widthMeasureSpec);
-        } else {
-            //todo:
-        }
-
+    protected void onMeasure( int width, int height ) {
+        super.onMeasure( width, height );
         int maxWidth = 0;
         View matchParentView = null;
         for ( int i = 0; i < getChildCount(); ++i ) {
@@ -74,10 +63,7 @@ public class YaViewGroup extends LinearLayout {
 
             if ( lp.width != LayoutParams.MATCH_PARENT ) {
 
-                int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec( width, MeasureSpec.AT_MOST );
-                int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec( height, MeasureSpec.AT_MOST );
-
-                child.measure( childWidthMeasureSpec, childHeightMeasureSpec );
+                measureChild(child, width, height);
                 maxWidth += child.getMeasuredWidth();
             } else {
                 if ( matchParentView == null )
@@ -87,9 +73,7 @@ public class YaViewGroup extends LinearLayout {
         int matchParentViewWidth = MeasureSpec.makeMeasureSpec( width - maxWidth, MeasureSpec.EXACTLY );
         int matchParentViewHeight = MeasureSpec.makeMeasureSpec( height, MeasureSpec.EXACTLY );
         if ( matchParentView != null ) {
-            matchParentView.measure( matchParentViewWidth, matchParentViewHeight );
+            measureChild(matchParentView, matchParentViewWidth, matchParentViewHeight);
         }
     }
-
-
 }
